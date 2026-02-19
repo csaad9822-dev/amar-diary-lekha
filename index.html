@@ -2,30 +2,39 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Photo Diary</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Interactive Photo Diary</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500&family=Caveat:wght@500;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --bg-color: #dfd3c3; --page-color: #fffdf5; --text-color: #3d3d3d; --line-color: #d1c4b9; --book-border: #8b5e3c; --font-bn: 'Hind Siliguri', sans-serif; }
         [data-theme="dark"] { --bg-color: #1a1a1a; --page-color: #2c2c2c; --text-color: #d1d1d1; --line-color: #444; --book-border: #4a301d; }
-        body { background: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; font-family: var(--font-bn); transition: 0.5s; overflow: hidden; }
-        .book { width: 550px; height: 780px; position: relative; transform-style: preserve-3d; display: none; }
-        .page { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1); background: var(--page-color); box-shadow: inset 3px 0px 20px rgba(0,0,0,0.1), 5px 5px 15px rgba(0,0,0,0.2); border-radius: 0 15px 15px 0; padding: 40px; box-sizing: border-box; color: var(--text-color); backface-visibility: hidden; z-index: 1; display: flex; flex-direction: column; }
+        
+        body { background: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; font-family: var(--font-bn); transition: 0.5s; overflow: hidden; touch-action: none; }
+        
+        .book-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 550px; padding: 20px; box-sizing: border-box; }
+        .book { width: 100%; height: 680px; position: relative; transform-style: preserve-3d; display: none; cursor: grab; }
+        .book:active { cursor: grabbing; }
+        
+        .page { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); background: var(--page-color); box-shadow: inset 3px 0px 20px rgba(0,0,0,0.1), 5px 5px 15px rgba(0,0,0,0.2); border-radius: 0 15px 15px 0; padding: 35px 25px; box-sizing: border-box; color: var(--text-color); backface-visibility: hidden; z-index: 1; display: flex; flex-direction: column; user-select: none; }
         .page.flipped { transform: rotateY(-180deg); z-index: 0; }
-        .cover { background: var(--book-border); color: white; justify-content: center; align-items: center; text-align: center; border-left: 15px solid #5d4037; border-radius: 5px 15px 15px 5px; z-index: 100 !important; }
-        .photo-frame { width: 190px; height: 190px; background: #fff; padding: 10px; box-shadow: 3px 3px 15px rgba(0,0,0,0.2); transform: rotate(-2deg); margin: 10px auto; border: 1px solid #eee; cursor: pointer; position: relative; flex-shrink: 0; }
+        
+        .cover { background: var(--book-border); color: white; justify-content: center; align-items: center; text-align: center; border-left: 12px solid #5d4037; border-radius: 5px 15px 15px 5px; z-index: 100 !important; }
+        
+        .photo-frame { width: 170px; height: 170px; background: #fff; padding: 8px; box-shadow: 2px 2px 12px rgba(0,0,0,0.2); transform: rotate(-2deg); margin: 10px auto; border: 1px solid #eee; flex-shrink: 0; pointer-events: none; }
         .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
-        .heart-btn { position: absolute; top: 15px; right: 15px; font-size: 25px; cursor: pointer; transition: 0.3s; filter: grayscale(1); }
-        .heart-btn.active { filter: grayscale(0); transform: scale(1.2); }
-        textarea { width: 100%; flex-grow: 1; border: none; background: transparent; background-image: linear-gradient(var(--line-color) 1px, transparent 1px); background-size: 100% 40px; line-height: 40px; font-size: 22px; font-family: var(--font-bn); resize: none; outline: none; color: var(--text-color); margin-top: 10px; }
-        .controls { position: fixed; bottom: 20px; display: flex; gap: 8px; z-index: 1000; flex-wrap: wrap; justify-content: center; }
-        button, label { padding: 10px 15px; border: none; border-radius: 20px; cursor: pointer; background: #5d4037; color: white; font-weight: bold; font-size: 14px; transition: 0.3s; }
-        .logout-btn { position: fixed; top: 20px; left: 20px; background: #c0392b; }
-        .dark-mode-toggle { position: fixed; top: 15px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; z-index: 1001; }
+        
+        textarea { width: 100%; flex-grow: 1; border: none; background: transparent; background-image: linear-gradient(var(--line-color) 1px, transparent 1px); background-size: 100% 38px; line-height: 38px; font-size: 20px; font-family: var(--font-bn); resize: none; outline: none; color: var(--text-color); margin-top: 10px; }
+        
+        .controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.1); padding: 15px; display: flex; gap: 10px; z-index: 1000; justify-content: center; }
+        button, label { padding: 12px 18px; border: none; border-radius: 25px; cursor: pointer; background: #5d4037; color: white; font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        
+        .logout-btn { position: fixed; top: 15px; left: 15px; background: #c0392b; z-index: 1001; }
+        .dark-mode-toggle { position: fixed; top: 12px; right: 15px; font-size: 26px; background: none; border: none; cursor: pointer; z-index: 1001; }
+        
         #loginOverlay { position: fixed; inset: 0; background: #222; display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; width: 280px; }
+        .login-box { background: white; padding: 35px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; }
         input[type="file"] { display: none; }
     </style>
 </head>
@@ -36,27 +45,27 @@
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h1 style="margin:0;">📔</h1>
-        <h3 style="font-family: 'Dancing Script';">My Secret Diary</h3>
-        <input type="password" id="passInput" placeholder="Password..." style="padding:10px; width:90%; margin-bottom:15px; border-radius:8px; border:1px solid #ccc;"><br>
-        <button onclick="checkPassword()" style="width:100%">Open Diary</button>
+        <h1>📔</h1>
+        <h3 style="color:#333;">Private Photo Diary</h3>
+        <input type="password" id="passInput" placeholder="Password..." style="padding:12px; width:90%; margin-bottom:15px; border-radius:10px; border:1px solid #ccc;"><br>
+        <button onclick="checkPassword()" style="width:100%; background:#5d4037; color:white;">Unlock</button>
     </div>
 </div>
 
-<div class="book" id="myBook">
-    <div class="page cover" id="p0">
-        <h1 style="font-size: 50px; margin:0;">📓</h1>
-        <h2 style="font-family: 'Dancing Script'; font-size: 45px;">My Diary</h2>
-        <p style="font-family: 'Caveat'; font-size: 24px;">Lekha ar chobite sajao smriti gulo...</p>
+<div class="book-container">
+    <div class="book" id="myBook">
+        <div class="page cover" id="p0">
+            <h1 style="font-size: 55px; margin:0;">📓</h1>
+            <h2 style="font-family: 'Dancing Script'; font-size: 40px;">My Diary</h2>
+            <p style="font-family: 'Caveat'; font-size: 22px;">Swipe to turn pages...</p>
+        </div>
     </div>
 </div>
 
 <div class="controls" id="uiControls" style="display:none;">
-    <button onclick="prevPage()">⬅️ Prev</button>
-    <label for="photoInput">🖼️ Photo</label>
+    <label for="photoInput">🖼️ Add Photo</label>
     <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
-    <button onclick="saveCurrentPage()">💾 Save</button>
-    <button onclick="handleNext()">Next ➡️</button>
+    <button onclick="saveCurrentPage()" style="background: #27ae60;">💾 Save This Page</button>
 </div>
 
 <script>
@@ -74,6 +83,7 @@
 
     let currentPageIndex = 0;
     let sessionMaxPage = 0;
+    let startX = 0;
 
     function toggleDarkMode() {
         const body = document.body;
@@ -88,10 +98,34 @@
             document.getElementById('uiControls').style.display = 'flex';
             document.getElementById('logoutBtn').style.display = 'block';
             loadAllPages();
-        } else alert("Vul Password!");
+            initTouch();
+        } else alert("Wrong Password!");
     }
 
-    function createPageElement(index, content = "", dateStr = "", photoBase64 = "", isFav = false) {
+    // --- Swipe & Drag Logic ---
+    function initTouch() {
+        const book = document.getElementById('myBook');
+        
+        book.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        book.addEventListener('touchend', e => handleSwipe(e.changedTouches[0].clientX));
+        
+        book.addEventListener('mousedown', e => startX = e.clientX);
+        book.addEventListener('mouseup', e => handleSwipe(e.clientX));
+    }
+
+    function handleSwipe(endX) {
+        const diff = startX - endX;
+        if (Math.abs(diff) < 50) return; // Ignore small movements
+        
+        if (diff > 50) { // Swipe Left -> Next
+            if (currentPageIndex >= sessionMaxPage) addNewPage();
+            else nextPage();
+        } else { // Swipe Right -> Prev
+            prevPage();
+        }
+    }
+
+    function createPageElement(index, content = "", dateStr = "", photoBase64 = "") {
         if (document.getElementById(`p${index}`)) return;
         const date = dateStr || new Date().toLocaleDateString('bn-BD');
         const page = document.createElement('div');
@@ -100,24 +134,16 @@
         page.style.zIndex = 100 - index;
         
         page.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h4 style="margin:0; font-family: 'Dancing Script';">Date: ${date}</h4>
-                <span class="heart-btn ${isFav ? 'active' : ''}" id="heart${index}" onclick="toggleHeart(${index})">❤️</span>
-            </div>
-            <div class="photo-frame" onclick="document.getElementById('photoInput').click()">
+            <div style="font-size:13px; font-weight:bold; margin-bottom:10px;">📅 ${date}</div>
+            <div class="photo-frame">
                 <img src="${photoBase64 || ''}" id="img${index}" style="${photoBase64 ? '' : 'display:none'}">
-                ${!photoBase64 ? `<div id="place${index}" style="color:#999; padding-top:70px; font-size:12px; text-align:center;">Add Photo</div>` : ''}
+                ${!photoBase64 ? `<div id="place${index}" style="color:#999; padding-top:65px; font-size:12px; text-align:center;">No Photo</div>` : ''}
             </div>
             <textarea id="text${index}" placeholder="Likho ekhane...">${content}</textarea>
-            <p style="text-align:right; font-size:10px; color:gray; margin:0;">Pata: ${index}</p>
+            <p style="text-align:right; font-size:10px; color:gray; margin:0;">Page: ${index}</p>
         `;
         document.getElementById('myBook').appendChild(page);
         sessionMaxPage = index;
-    }
-
-    function toggleHeart(index) {
-        const btn = document.getElementById(`heart${index}`);
-        btn.classList.toggle('active');
     }
 
     function handlePhotoUpload(event) {
@@ -129,7 +155,7 @@
             img.src = e.target.result;
             img.style.display = 'block';
             if(document.getElementById(`place${currentPageIndex}`)) document.getElementById(`place${currentPageIndex}`).style.display = 'none';
-        }
+        };
         reader.readAsDataURL(file);
     }
 
@@ -137,18 +163,13 @@
         if(currentPageIndex === 0) return;
         const text = document.getElementById(`text${currentPageIndex}`).value;
         const img = document.getElementById(`img${currentPageIndex}`).src;
-        const isFav = document.getElementById(`heart${currentPageIndex}`).classList.contains('active');
-        const date = new Date().toLocaleDateString('bn-BD');
-        
         database.ref('diaryPages/' + currentPageIndex).set({
             content: text,
-            date: date,
-            photo: img.startsWith('data:image') ? img : "",
-            favorite: isFav
+            date: new Date().toLocaleDateString('bn-BD'),
+            photo: img.startsWith('data:image') ? img : ""
         }).then(() => alert("Saved!"));
     }
 
-    function handleNext() { (currentPageIndex >= sessionMaxPage) ? addNewPage() : nextPage(); }
     function addNewPage() { let newIdx = parseInt(sessionMaxPage) + 1; createPageElement(newIdx); setTimeout(nextPage, 100); }
     function nextPage() { const page = document.getElementById(`p${currentPageIndex}`); if (page) { page.classList.add('flipped'); currentPageIndex++; } }
     function prevPage() { if (currentPageIndex > 0) { currentPageIndex--; document.getElementById(`p${currentPageIndex}`).classList.remove('flipped'); } }
@@ -157,9 +178,7 @@
         database.ref('diaryPages/').once('value').then((snapshot) => {
             const data = snapshot.val();
             if (data) {
-                Object.keys(data).sort((a,b) => a-b).forEach(key => {
-                    createPageElement(key, data[key].content, data[key].date, data[key].photo, data[key].favorite);
-                });
+                Object.keys(data).sort((a,b) => a-b).forEach(key => createPageElement(key, data[key].content, data[key].date, data[key].photo));
             }
         });
     }
