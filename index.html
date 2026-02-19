@@ -4,84 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Private Journal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Hind+Siliguri:wght@300;500&family=Mina:wght@400;700&family=Galada&family=Atma:wght@500&family=Caveat:wght@400;700&family=Dancing+Script:wght@600&family=Satisfy&family=Indie+Flower&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:ital,wght@0,700;1,700&family=Hind+Siliguri:wght@500;700&family=Mina:wght@700&family=Galada&family=Atma:wght@600&family=Caveat:wght@700&family=Dancing+Script:wght@700&family=Satisfy&family=Indie+Flower&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { 
-            --gold: #c5a059;
+            --gold: #d4af37;
+            --deep-gold: #b8860b;
             --paper: #e3d3b6;
             --leather: #2c1a10;
-            --current-font: 'Hind Siliguri', sans-serif;
+            --text-main: #1a0f0a;
         }
         
         body { 
             background: #0a0502 url('https://www.transparenttextures.com/patterns/dark-wood.png'); 
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; overflow: hidden; touch-action: none; font-family: var(--current-font);
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; overflow: hidden; touch-action: none;
         }
 
         body::after {
-            content: ''; position: fixed; inset: 0; background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%); pointer-events: none; z-index: 5;
+            content: ''; position: fixed; inset: 0; background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.9) 100%); pointer-events: none; z-index: 5;
         }
 
         #bgPhotos { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         .scattered-photo { 
             position: absolute; width: 140px; height: 140px; background: #fff; padding: 10px; 
-            box-shadow: 10px 15px 35px rgba(0,0,0,0.7); object-fit: cover; filter: sepia(0.2); z-index: 2;
+            box-shadow: 10px 15px 35px rgba(0,0,0,0.8); object-fit: cover; filter: sepia(0.2); z-index: 2;
         }
 
-        .book-container { position: relative; width: 440px; height: 620px; z-index: 10; filter: drop-shadow(30px 40px 60px #000); }
+        .book-container { position: relative; width: 440px; height: 620px; z-index: 10; filter: drop-shadow(40px 50px 80px #000); }
         .book { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; display: none; }
         
         .page { 
             width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; 
             transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); 
             background: var(--paper) url('https://www.transparenttextures.com/patterns/papyros.png'); 
-            padding: 50px 40px; box-sizing: border-box; color: #332211; 
+            padding: 55px 45px; box-sizing: border-box; color: var(--text-main); 
             backface-visibility: hidden; display: flex; flex-direction: column;
-            box-shadow: inset 10px 0 30px rgba(0,0,0,0.15);
-            border-radius: 2px 8px 8px 2px;
+            box-shadow: inset 10px 0 40px rgba(0,0,0,0.2);
+            border-radius: 2px 10px 10px 2px;
         }
         
         .cover { 
             background: var(--leather) url('https://www.transparenttextures.com/patterns/leather.png') !important; 
-            border-left: 15px solid #1a0f0a; justify-content: center; align-items: center; text-align: center;
-            z-index: 100 !important; color: var(--gold);
+            border-left: 18px solid #140804; justify-content: center; align-items: center; text-align: center;
+            z-index: 100 !important;
         }
         
+        /* High Contrast Front Page Text */
+        .cover h1 { 
+            font-family: 'Cinzel', serif; font-size: 48px; color: var(--gold); 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(212, 175, 55, 0.4);
+            margin: 0; letter-spacing: 4px;
+        }
+        .cover p { 
+            font-family: 'Hind Siliguri', sans-serif; font-size: 22px; color: #d4bc8e; 
+            margin-top: 25px; font-weight: 500; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+        }
+
         .page.flipped { transform: rotateY(-180deg); }
 
         textarea { 
             width: 100%; flex-grow: 1; border: none; background: transparent; 
-            background-image: linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px); 
-            background-size: 100% 38px; line-height: 38px; font-size: 20px; 
-            resize: none; outline: none; color: #332211; margin-top: 15px; font-family: inherit;
+            background-image: linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px); 
+            background-size: 100% 38px; line-height: 38px; font-size: 21px; 
+            resize: none; outline: none; color: #2c1a10; margin-top: 20px; font-family: inherit; font-weight: 500;
         }
 
         .controls { 
-            position: fixed; bottom: 0; width: 100%; min-height: 70px;
-            background: rgba(15, 10, 5, 0.95);
-            display: flex; gap: 10px; z-index: 1000; justify-content: center; align-items: center;
-            border-top: 1px solid #332211; flex-wrap: wrap; padding: 10px;
+            position: fixed; bottom: 0; width: 100%; min-height: 80px;
+            background: rgba(10, 5, 2, 0.98);
+            display: flex; gap: 12px; z-index: 1000; justify-content: center; align-items: center;
+            border-top: 2px solid var(--deep-gold); flex-wrap: wrap; padding: 10px;
         }
 
         .nav-btn {
-            background: #4a3420; border: 1px solid var(--gold); padding: 8px 12px;
-            color: var(--gold); font-family: 'Cinzel', serif; font-size: 11px; cursor: pointer;
-            transition: 0.3s; border-radius: 3px;
+            background: linear-gradient(to bottom, #4a3420, #2c1a10); border: 1px solid var(--gold); padding: 10px 18px;
+            color: var(--gold); font-family: 'Hind Siliguri', serif; font-size: 13px; cursor: pointer;
+            transition: 0.2s; border-radius: 4px; font-weight: bold; text-transform: uppercase;
         }
 
-        .nav-btn:hover { background: var(--gold); color: #1a0f0a; }
-        .logout-btn { background: #8b0000; border-color: #ff4444; color: white; }
+        .nav-btn:hover { background: var(--gold); color: #1a0f0a; transform: translateY(-2px); }
+        .logout-btn { background: #600 !important; border-color: #f44 !important; color: #fff !important; }
 
         select {
             background: #1a0f0a; color: var(--gold); border: 1px solid var(--gold);
-            padding: 7px; border-radius: 3px; font-size: 11px; font-family: 'Cinzel', serif;
+            padding: 9px; border-radius: 4px; font-size: 13px; font-family: 'Hind Siliguri'; font-weight: bold;
         }
 
         #loginOverlay { position: fixed; inset: 0; background: #0a0502; display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: var(--paper); padding: 40px; border-radius: 4px; text-align: center; border: 2px solid #332211; box-shadow: 0 0 50px #000; width: 300px; }
-        input[type="password"] { padding: 12px; width: 85%; border: 1px solid #332211; margin-bottom: 20px; background: rgba(255,255,255,0.3); }
+        .login-box { background: var(--paper); padding: 45px; border-radius: 5px; text-align: center; border: 3px double var(--leather); box-shadow: 0 0 100px #000; width: 320px; }
     </style>
 </head>
 <body>
@@ -90,18 +101,18 @@
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h2 style="font-family: 'Cinzel'; color: #332211; margin-bottom: 30px;">Private Access</h2>
-        <input type="password" id="passInput" placeholder="Enter Key..."><br>
-        <button class="nav-btn" onclick="checkPassword()" style="width:100%;">Unlock Journal</button>
+        <h2 style="font-family: 'Cinzel'; color: #2c1a10; margin-bottom: 30px; letter-spacing: 2px;">PRIVATE LOG</h2>
+        <input type="password" id="passInput" placeholder="Password..." style="padding:12px; width:85%; border:1px solid #2c1a10; margin-bottom:20px; background: rgba(0,0,0,0.05); font-size: 16px;"><br>
+        <button class="nav-btn" onclick="checkPassword()" style="width:100%;">UNLOCK DIARY</button>
     </div>
 </div>
 
 <div class="book-container">
     <div class="book" id="myBook">
         <div class="page cover" id="p0">
-            <h1 style="font-family: 'Cinzel'; font-size: 40px; letter-spacing: 5px; margin: 0;">MY DIARY</h1>
-            <div style="width: 60px; height: 1px; background: var(--gold); margin: 20px auto;"></div>
-            <p style="font-family: 'Playfair Display'; font-style: italic; font-size: 18px; opacity: 0.8;">Where untold stories remain...</p>
+            <h1>MY DIARY</h1>
+            <div style="width: 100px; height: 2px; background: var(--gold); margin: 20px auto; box-shadow: 0 0 8px var(--gold);"></div>
+            <p>লেখা হয়নি যা কিছু, থাকবে এখানে...</p>
         </div>
     </div>
 </div>
@@ -110,8 +121,8 @@
     <button class="nav-btn" onclick="prevPage()">Back</button>
     
     <select id="fontSelect" onchange="changeFont(this.value)">
-        <option value="'Hind Siliguri'">Hind (Normal)</option>
-        <option value="'Mina'">Mina (Classic Pen)</option>
+        <option value="'Hind Siliguri'">Hind (Standard)</option>
+        <option value="'Mina'">Mina (Classic)</option>
         <option value="'Galada'">Galada (Bengali Art)</option>
         <option value="'Atma'">Atma (Playful)</option>
         <option value="'Caveat'">Caveat (Handwriting)</option>
@@ -124,13 +135,12 @@
     <label for="photoInput" class="nav-btn">Add Photo</label>
     <input type="file" id="photoInput" accept="image/*" multiple onchange="handleMultiplePhotos(event)" style="display:none;">
     
-    <button class="nav-btn" onclick="saveCurrentPage()" style="background: var(--gold); color: #1a0f0a;">Save</button>
+    <button class="nav-btn" onclick="saveCurrentPage()" style="background: var(--gold); color: #1a0f0a;">Save Entry</button>
     <button class="nav-btn" onclick="handleNext()">Next</button>
     <button class="nav-btn logout-btn" onclick="logout()">Log Out</button>
 </div>
 
 <script>
-    // Firebase and logic remain the same
     const firebaseConfig = {
         apiKey: "AIzaSyAc-Qa0_Cfn-ECGCShZ5JKMi_cooB04RUw",
         authDomain: "my-diary-88a66.firebaseapp.com",
@@ -160,12 +170,10 @@
             document.getElementById('uiControls').style.display = 'flex';
             loadAllPages();
             initGestures();
-        } else alert("Invalid Key");
+        } else alert("Denied.");
     }
 
-    function logout() {
-        location.reload(); // Simple and secure way to lock back
-    }
+    function logout() { location.reload(); }
 
     function handleMultiplePhotos(event) {
         if(currentPageIndex === 0) return;
@@ -205,9 +213,9 @@
         page.id = `p${index}`;
         page.style.zIndex = 100 - index;
         page.innerHTML = `
-            <div style="font-size:12px; font-weight:bold; border-bottom:1px solid rgba(0,0,0,0.1); opacity:0.6;">Date: ${date}</div>
-            <textarea id="text${index}" style="font-family: var(--current-font)">${content}</textarea>
-            <p style="text-align:right; font-size:10px; opacity:0.4;">Folio ${index}</p>
+            <div style="font-size:13px; font-weight:bold; border-bottom:1px solid rgba(0,0,0,0.15); opacity:0.7; font-family:serif;">DATE: ${date}</div>
+            <textarea id="text${index}">${content}</textarea>
+            <p style="text-align:right; font-size:11px; opacity:0.4; font-family:serif;">FOLIO ${index}</p>
         `;
         document.getElementById('myBook').appendChild(page);
         sessionMaxPage = index;
@@ -220,7 +228,7 @@
             content: text,
             date: new Date().toLocaleDateString('en-GB'),
             photos: pagePhotos[currentPageIndex] || []
-        }).then(() => alert("Saved."));
+        }).then(() => alert("Entry Saved."));
     }
 
     function initGestures() {
