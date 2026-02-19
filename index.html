@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amar Priyo Diary</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { background: #dfd3c3; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .notebook { background: #fffdf5; width: 90%; max-width: 600px; min-height: 500px; padding: 40px; border-left: 20px solid #8b5e3c; border-radius: 5px 15px 15px 5px; box-shadow: 10px 10px 20px rgba(0,0,0,0.2); position: relative; }
+        .notebook::before { content: ""; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: rgba(0,0,0,0.1); }
+        h2 { font-family: 'Georgia', serif; color: #5d4037; text-align: center; border-bottom: 2px solid #5d4037; padding-bottom: 10px; }
+        textarea { width: 100%; height: 350px; border: none; background: transparent; background-image: linear-gradient(#e1d9d1 1px, transparent 1px); background-size: 100% 30px; line-height: 30px; font-size: 18px; font-family: 'Courier New', Courier, monospace; color: #2c3e50; resize: none; outline: none; padding-top: 5px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .save-btn { background: #5d4037; color: white; }
+        .add-btn { background: #8d7b68; color: white; }
+        button:hover { opacity: 0.8; }
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #333; display: flex; justify-content: center; align-items: center; z-index: 100; }
+        .login-box { background: white; padding: 30px; border-radius: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div id="loginOverlay">
+    <div class="login-box">
+        <h3>🔐 Password Din</h3>
+        <input type="password" id="passInput" style="padding: 10px; margin-bottom: 10px; width: 80%;"><br>
+        <button onclick="checkPassword()" class="save-btn">Provesh Korun</button>
+    </div>
+</div>
+
+<div class="notebook">
+    <h2>📓 Amar Moner Diary</h2>
+    <textarea id="diaryInput" placeholder="Ajker kotha likho..."></textarea>
+    <div class="btn-group">
+        <button class="add-btn" onclick="addNewLine()">➕ Notun Line</button>
+        <button class="save-btn" onclick="saveToCloud()">💾 Diary Save</button>
+    </div>
+    <p id="status" style="text-align: center; color: green; display: none;">Saved Successfully!</p>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAc-Qa0_Cfn-ECGCShZ5JKMi_cooB04RUw",
+        authDomain: "my-diary-88a66.firebaseapp.com",
+        databaseURL: "https://my-diary-88a66-default-rtdb.firebaseio.com",
+        projectId: "my-diary-88a66",
+        storageBucket: "my-diary-88a66.firebasestorage.app",
+        messagingSenderId: "1041502354402",
+        appId: "1:1041502354402:web:3db83617c05b1c3d9f97bb"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function checkPassword() {
+        const pass = document.getElementById('passInput').value;
+        if(pass === "1234") { // Tumi ekhane password change korte paro
+            document.getElementById('loginOverlay').style.display = 'none';
+            loadFromCloud();
+        } else { alert("Wrong Password!"); }
+    }
+
+    function addNewLine() {
+        const area = document.getElementById('diaryInput');
+        const date = new Date().toLocaleDateString();
+        area.value += `\n\n--- Date: ${date} ---\n`;
+        area.focus();
+    }
+
+    function saveToCloud() {
+        const text = document.getElementById('diaryInput').value;
+        database.ref('myDiaryData/').set({ content: text }).then(() => {
+            document.getElementById('status').style.display = 'block';
+            setTimeout(() => { document.getElementById('status').style.display = 'none'; }, 2000);
+        });
+    }
+
+    function loadFromCloud() {
+        database.ref('myDiaryData/').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) document.getElementById('diaryInput').value = data.content;
+        });
+    }
+</script>
+</body>
+</html>
