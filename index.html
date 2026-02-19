@@ -1,69 +1,87 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Premium Diary</title>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500&family=Caveat:wght@500;700&family=Dancing+Script:wght@700&family=Galada&family=Mina:wght@400;700&family=Atma:wght@500&family=Indie+Flower&family=Satisfy&display=swap" rel="stylesheet">
+    <title>The Private Journal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Hind+Siliguri:wght@300;500&family=Mina:wght@400;700&family=Galada&family=Atma:wght@500&family=Caveat:wght@400;700&family=Dancing+Script:wght@600&family=Satisfy&family=Indie+Flower&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { 
-            --page-color: #e8d5b5; 
-            --text-color: #3e2723; 
+            --gold: #c5a059;
+            --paper: #e3d3b6;
+            --leather: #2c1a10;
             --current-font: 'Hind Siliguri', sans-serif;
         }
         
         body { 
-            background: #1a0f00 url('https://www.transparenttextures.com/patterns/dark-wood.png'); 
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2500px; font-family: var(--current-font); overflow: hidden; touch-action: none; 
+            background: #0a0502 url('https://www.transparenttextures.com/patterns/dark-wood.png'); 
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; overflow: hidden; touch-action: none; font-family: var(--current-font);
         }
 
-        .paper-texture {
-            background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png'), 
-                              linear-gradient(to right, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 5%, rgba(0,0,0,0) 95%, rgba(0,0,0,0.1) 100%);
+        body::after {
+            content: ''; position: fixed; inset: 0; background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%); pointer-events: none; z-index: 5;
         }
 
-        #bgPhotos { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+        #bgPhotos { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         .scattered-photo { 
-            position: absolute; width: 140px; height: 140px; background: #fffdf5; padding: 10px; 
-            box-shadow: 10px 10px 25px rgba(0,0,0,0.6); border: 1px solid #dcd1b3; 
-            object-fit: cover; border-radius: 2px; filter: sepia(0.2) contrast(1.1); 
+            position: absolute; width: 140px; height: 140px; background: #fff; padding: 10px; 
+            box-shadow: 10px 15px 35px rgba(0,0,0,0.7); object-fit: cover; filter: sepia(0.2); z-index: 2;
         }
 
-        .book-container { position: relative; width: 450px; height: 620px; filter: drop-shadow(20px 20px 50px rgba(0,0,0,0.8)); }
+        .book-container { position: relative; width: 440px; height: 620px; z-index: 10; filter: drop-shadow(30px 40px 60px #000); }
         .book { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; display: none; }
         
         .page { 
             width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; 
-            transition: transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1); 
-            background-color: var(--page-color); 
-            border-radius: 0 10px 10px 0; padding: 45px 35px; box-sizing: border-box; color: var(--text-color); 
-            backface-visibility: hidden; display: flex; flex-direction: column; 
-            border: 1px solid rgba(0,0,0,0.1);
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); 
+            background: var(--paper) url('https://www.transparenttextures.com/patterns/papyros.png'); 
+            padding: 50px 40px; box-sizing: border-box; color: #332211; 
+            backface-visibility: hidden; display: flex; flex-direction: column;
+            box-shadow: inset 10px 0 30px rgba(0,0,0,0.15);
+            border-radius: 2px 8px 8px 2px;
         }
         
         .cover { 
-            background: #4e342e url('https://www.transparenttextures.com/patterns/leather.png'); 
-            color: #d7ccc8; justify-content: center; align-items: center; text-align: center; 
-            border-left: 15px solid #2d1b0d; border-radius: 5px 15px 15px 5px; z-index: 100 !important; 
+            background: var(--leather) url('https://www.transparenttextures.com/patterns/leather.png') !important; 
+            border-left: 15px solid #1a0f0a; justify-content: center; align-items: center; text-align: center;
+            z-index: 100 !important; color: var(--gold);
         }
         
-        .page.flipped { transform: rotateY(-180deg); z-index: 0; }
+        .page.flipped { transform: rotateY(-180deg); }
 
         textarea { 
             width: 100%; flex-grow: 1; border: none; background: transparent; 
-            background-image: linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px); 
-            background-size: 100% 38px; line-height: 38px; font-size: 22px; 
-            font-family: inherit; resize: none; outline: none; color: var(--text-color); margin-top: 15px; 
+            background-image: linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px); 
+            background-size: 100% 38px; line-height: 38px; font-size: 20px; 
+            resize: none; outline: none; color: #332211; margin-top: 15px; font-family: inherit;
         }
-        
-        .controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(30, 20, 10, 0.95); padding: 12px; display: flex; gap: 8px; z-index: 1000; justify-content: center; flex-wrap: wrap; border-top: 2px solid #3e2723; backdrop-filter: blur(5px); }
-        button, label, select { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; background: #8d6e63; color: #fff; font-weight: bold; font-size: 12px; box-shadow: 0 3px 0 #5d4037; }
-        .save-btn { background: #4e342e !important; }
 
-        #loginOverlay { position: fixed; inset: 0; background: #000 url('https://www.transparenttextures.com/patterns/dark-wood.png'); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: #e8d5b5 url('https://www.transparenttextures.com/patterns/natural-paper.png'); padding: 40px; border-radius: 5px; text-align: center; width: 320px; border: 1px solid #3e2723; }
+        .controls { 
+            position: fixed; bottom: 0; width: 100%; min-height: 70px;
+            background: rgba(15, 10, 5, 0.95);
+            display: flex; gap: 10px; z-index: 1000; justify-content: center; align-items: center;
+            border-top: 1px solid #332211; flex-wrap: wrap; padding: 10px;
+        }
+
+        .nav-btn {
+            background: #4a3420; border: 1px solid var(--gold); padding: 8px 12px;
+            color: var(--gold); font-family: 'Cinzel', serif; font-size: 11px; cursor: pointer;
+            transition: 0.3s; border-radius: 3px;
+        }
+
+        .nav-btn:hover { background: var(--gold); color: #1a0f0a; }
+        .logout-btn { background: #8b0000; border-color: #ff4444; color: white; }
+
+        select {
+            background: #1a0f0a; color: var(--gold); border: 1px solid var(--gold);
+            padding: 7px; border-radius: 3px; font-size: 11px; font-family: 'Cinzel', serif;
+        }
+
+        #loginOverlay { position: fixed; inset: 0; background: #0a0502; display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: var(--paper); padding: 40px; border-radius: 4px; text-align: center; border: 2px solid #332211; box-shadow: 0 0 50px #000; width: 300px; }
+        input[type="password"] { padding: 12px; width: 85%; border: 1px solid #332211; margin-bottom: 20px; background: rgba(255,255,255,0.3); }
     </style>
 </head>
 <body>
@@ -72,45 +90,47 @@
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h1 style="margin:0; font-size: 50px;">✒️</h1>
-        <h2 style="color:#3e2723; font-family: 'Dancing Script';">My Private Journal</h2>
-        <input type="password" id="passInput" placeholder="Enter Passphrase..." style="padding:12px; width:90%; border:1px solid #3e2723; margin-bottom:20px;"><br>
-        <button onclick="checkPassword()" style="width:100%;">Unlock</button>
+        <h2 style="font-family: 'Cinzel'; color: #332211; margin-bottom: 30px;">Private Access</h2>
+        <input type="password" id="passInput" placeholder="Enter Key..."><br>
+        <button class="nav-btn" onclick="checkPassword()" style="width:100%;">Unlock Journal</button>
     </div>
 </div>
 
 <div class="book-container">
     <div class="book" id="myBook">
         <div class="page cover" id="p0">
-            <h1 style="font-size: 70px; margin:0;">📔</h1>
-            <h2 style="font-family: 'Dancing Script'; font-size: 48px; margin: 10px 0;">My Diary</h2>
-            <div style="width: 50px; height: 2px; background: #d7ccc8; margin: 10px auto;"></div>
-            <p style="font-family: 'Caveat'; font-size: 22px; color: #d7ccc8;">Lekha hoyni ja kichu, thakbe ekhane...</p>
+            <h1 style="font-family: 'Cinzel'; font-size: 40px; letter-spacing: 5px; margin: 0;">MY DIARY</h1>
+            <div style="width: 60px; height: 1px; background: var(--gold); margin: 20px auto;"></div>
+            <p style="font-family: 'Playfair Display'; font-style: italic; font-size: 18px; opacity: 0.8;">Where untold stories remain...</p>
         </div>
     </div>
 </div>
 
 <div class="controls" id="uiControls" style="display:none;">
-    <button onclick="prevPage()">⬅️ Back</button>
+    <button class="nav-btn" onclick="prevPage()">Back</button>
     
     <select id="fontSelect" onchange="changeFont(this.value)">
         <option value="'Hind Siliguri'">Hind (Normal)</option>
-        <option value="'Mina'">Mina (Neat Pen)</option>
+        <option value="'Mina'">Mina (Classic Pen)</option>
         <option value="'Galada'">Galada (Bengali Art)</option>
         <option value="'Atma'">Atma (Playful)</option>
         <option value="'Caveat'">Caveat (Handwriting)</option>
         <option value="'Dancing Script'">Dancing (Cursive)</option>
         <option value="'Satisfy'">Satisfy (Vintage)</option>
         <option value="'Indie Flower'">Indie (Marker)</option>
+        <option value="'Playfair Display'">Formal Serif</option>
     </select>
 
-    <label for="photoInput">🖼️ Photo</label>
-    <input type="file" id="photoInput" accept="image/*" multiple onchange="handleMultiplePhotos(event)">
-    <button class="save-btn" onclick="saveCurrentPage()">💾 Save</button>
-    <button onclick="handleNext()">Next ➡️</button>
+    <label for="photoInput" class="nav-btn">Add Photo</label>
+    <input type="file" id="photoInput" accept="image/*" multiple onchange="handleMultiplePhotos(event)" style="display:none;">
+    
+    <button class="nav-btn" onclick="saveCurrentPage()" style="background: var(--gold); color: #1a0f0a;">Save</button>
+    <button class="nav-btn" onclick="handleNext()">Next</button>
+    <button class="nav-btn logout-btn" onclick="logout()">Log Out</button>
 </div>
 
 <script>
+    // Firebase and logic remain the same
     const firebaseConfig = {
         apiKey: "AIzaSyAc-Qa0_Cfn-ECGCShZ5JKMi_cooB04RUw",
         authDomain: "my-diary-88a66.firebaseapp.com",
@@ -140,7 +160,11 @@
             document.getElementById('uiControls').style.display = 'flex';
             loadAllPages();
             initGestures();
-        } else alert("Wrong Password!");
+        } else alert("Invalid Key");
+    }
+
+    function logout() {
+        location.reload(); // Simple and secure way to lock back
     }
 
     function handleMultiplePhotos(event) {
@@ -167,7 +191,7 @@
             img.className = 'scattered-photo';
             img.style.left = Math.random() * (window.innerWidth - 200) + 'px';
             img.style.top = Math.random() * (window.innerHeight - 200) + 'px';
-            img.style.transform = `rotate(${(Math.random() - 0.5) * 40}deg)`;
+            img.style.transform = `rotate(${(Math.random() - 0.5) * 30}deg)`;
             container.appendChild(img);
         });
     }
@@ -175,15 +199,15 @@
     function createPageElement(index, content = "", dateStr = "", photos = []) {
         if (document.getElementById(`p${index}`)) return;
         pagePhotos[index] = photos || [];
-        const date = dateStr || new Date().toLocaleDateString('bn-BD');
+        const date = dateStr || new Date().toLocaleDateString('en-GB');
         const page = document.createElement('div');
-        page.className = 'page paper-texture';
+        page.className = 'page';
         page.id = `p${index}`;
         page.style.zIndex = 100 - index;
         page.innerHTML = `
-            <div style="font-size:14px; font-weight:bold; border-bottom:1px solid rgba(0,0,0,0.1); font-family:serif;">Date: ${date}</div>
-            <textarea id="text${index}">${content}</textarea>
-            <p style="text-align:right; font-size:10px; opacity:0.5; margin:0;">Page ${index}</p>
+            <div style="font-size:12px; font-weight:bold; border-bottom:1px solid rgba(0,0,0,0.1); opacity:0.6;">Date: ${date}</div>
+            <textarea id="text${index}" style="font-family: var(--current-font)">${content}</textarea>
+            <p style="text-align:right; font-size:10px; opacity:0.4;">Folio ${index}</p>
         `;
         document.getElementById('myBook').appendChild(page);
         sessionMaxPage = index;
@@ -194,14 +218,14 @@
         const text = document.getElementById(`text${currentPageIndex}`).value;
         database.ref('diaryPages/' + currentPageIndex).set({
             content: text,
-            date: new Date().toLocaleDateString('bn-BD'),
+            date: new Date().toLocaleDateString('en-GB'),
             photos: pagePhotos[currentPageIndex] || []
-        }).then(() => alert("Smriti Shongrokkhito Hoyeche!"));
+        }).then(() => alert("Saved."));
     }
 
     function initGestures() {
         const book = document.getElementById('myBook');
-        book.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        book.addEventListener('touchstart', e => startX = e.touches[0].clientX, {passive: true});
         book.addEventListener('touchend', e => handleSwipe(e.changedTouches[0].clientX));
         book.addEventListener('mousedown', e => startX = e.clientX);
         book.addEventListener('mouseup', e => handleSwipe(e.clientX));
@@ -229,7 +253,7 @@
     function addNewPage() { 
         let newIdx = parseInt(sessionMaxPage) + 1; 
         createPageElement(newIdx); 
-        setTimeout(() => { nextPage(); renderBackgroundPhotos(); }, 100); 
+        setTimeout(() => { nextPage(); renderBackgroundPhotos(); }, 50); 
     }
 
     function nextPage() { 
