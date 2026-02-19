@@ -3,67 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Diary</title>
+    <title>My Premium Diary</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500&family=Caveat:wght@500;700&family=Dancing+Script:wght@700&family=Galada&family=Mina:wght@400;700&family=Atma:wght@500&family=Indie+Flower&family=Satisfy&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { 
-            --bg-color: #3e2723; 
-            --page-color: #f4e4bc; 
-            --text-color: #4e342e; 
-            --line-color: #d7ccc8; 
-            --book-border: #5d4037; 
-            --current-font: 'Hind Siliguri', sans-serif; 
+            --page-color: #e8d5b5; 
+            --text-color: #3e2723; 
+            --current-font: 'Hind Siliguri', sans-serif;
         }
         
         body { 
-            background: var(--bg-color); 
-            background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); 
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; font-family: var(--current-font); transition: 0.5s; overflow: hidden; touch-action: none; 
-        }
-        
-        #bgPhotos { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-        .scattered-photo { 
-            position: absolute; width: 130px; height: 130px; background: #fffdf5; padding: 8px; 
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.4); border: 1px solid #dcd1b3; 
-            object-fit: cover; border-radius: 2px; filter: sepia(0.2); 
+            background: #1a0f00 url('https://www.transparenttextures.com/patterns/dark-wood.png'); 
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2500px; font-family: var(--current-font); overflow: hidden; touch-action: none; 
         }
 
-        .book-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
-        .book { width: 100%; height: 650px; position: relative; transform-style: preserve-3d; display: none; cursor: grab; }
+        .paper-texture {
+            background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png'), 
+                              linear-gradient(to right, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 5%, rgba(0,0,0,0) 95%, rgba(0,0,0,0.1) 100%);
+        }
+
+        #bgPhotos { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+        .scattered-photo { 
+            position: absolute; width: 140px; height: 140px; background: #fffdf5; padding: 10px; 
+            box-shadow: 10px 10px 25px rgba(0,0,0,0.6); border: 1px solid #dcd1b3; 
+            object-fit: cover; border-radius: 2px; filter: sepia(0.2) contrast(1.1); 
+        }
+
+        .book-container { position: relative; width: 450px; height: 620px; filter: drop-shadow(20px 20px 50px rgba(0,0,0,0.8)); }
+        .book { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; display: none; }
         
         .page { 
             width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; 
-            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); 
-            background: var(--page-color); 
-            background-image: url('https://www.transparenttextures.com/patterns/papyros.png'); 
-            box-shadow: inset 5px 0px 30px rgba(0,0,0,0.2), 10px 10px 20px rgba(0,0,0,0.3); 
-            border-radius: 0 15px 15px 0; padding: 40px 30px; box-sizing: border-box; color: var(--text-color); 
+            transition: transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1); 
+            background-color: var(--page-color); 
+            border-radius: 0 10px 10px 0; padding: 45px 35px; box-sizing: border-box; color: var(--text-color); 
             backface-visibility: hidden; display: flex; flex-direction: column; 
+            border: 1px solid rgba(0,0,0,0.1);
         }
-        .page.flipped { transform: rotateY(-180deg); z-index: 0; }
         
         .cover { 
-            background: var(--book-border); color: #f4e4bc; justify-content: center; align-items: center; text-align: center; 
-            border-left: 15px solid #3e2723; border-radius: 5px 15px 15px 5px; z-index: 100 !important; 
+            background: #4e342e url('https://www.transparenttextures.com/patterns/leather.png'); 
+            color: #d7ccc8; justify-content: center; align-items: center; text-align: center; 
+            border-left: 15px solid #2d1b0d; border-radius: 5px 15px 15px 5px; z-index: 100 !important; 
         }
         
+        .page.flipped { transform: rotateY(-180deg); z-index: 0; }
+
         textarea { 
             width: 100%; flex-grow: 1; border: none; background: transparent; 
-            background-image: linear-gradient(var(--line-color) 1px, transparent 1px); 
+            background-image: linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px); 
             background-size: 100% 38px; line-height: 38px; font-size: 22px; 
             font-family: inherit; resize: none; outline: none; color: var(--text-color); margin-top: 15px; 
         }
         
-        .controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(62, 39, 35, 0.95); padding: 12px; display: flex; gap: 8px; z-index: 1000; justify-content: center; flex-wrap: wrap; backdrop-filter: blur(5px); }
-        button, label, select { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; background: #f4e4bc; color: #3e2723; font-weight: bold; font-size: 12px; border: 1px solid #d7ccc8; }
-        .save-btn { background: #5d4037 !important; color: white !important; }
+        .controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(30, 20, 10, 0.95); padding: 12px; display: flex; gap: 8px; z-index: 1000; justify-content: center; flex-wrap: wrap; border-top: 2px solid #3e2723; backdrop-filter: blur(5px); }
+        button, label, select { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; background: #8d6e63; color: #fff; font-weight: bold; font-size: 12px; box-shadow: 0 3px 0 #5d4037; }
+        .save-btn { background: #4e342e !important; }
 
-        #loginOverlay { position: fixed; inset: 0; background: #1a120b; display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: #f4e4bc; padding: 35px; border-radius: 10px; text-align: center; width: 85%; max-width: 300px; border: 2px solid #5d4037; }
-        input[type="password"] { padding: 12px; width: 90%; border-radius: 5px; border: 1px solid #5d4037; background: #fffdf5; margin-bottom: 15px; }
-        input[type="file"] { display: none; }
+        #loginOverlay { position: fixed; inset: 0; background: #000 url('https://www.transparenttextures.com/patterns/dark-wood.png'); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: #e8d5b5 url('https://www.transparenttextures.com/patterns/natural-paper.png'); padding: 40px; border-radius: 5px; text-align: center; width: 320px; border: 1px solid #3e2723; }
     </style>
 </head>
 <body>
@@ -72,38 +72,39 @@
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h1 style="margin:0;">📔</h1>
-        <h3 style="color:#3e2723; font-family: 'Dancing Script';">My Diary</h3>
-        <input type="password" id="passInput" placeholder="Password..."><br>
-        <button onclick="checkPassword()" style="width:100%; background:#3e2723; color:#f4e4bc;">Unlock</button>
+        <h1 style="margin:0; font-size: 50px;">✒️</h1>
+        <h2 style="color:#3e2723; font-family: 'Dancing Script';">My Private Journal</h2>
+        <input type="password" id="passInput" placeholder="Enter Passphrase..." style="padding:12px; width:90%; border:1px solid #3e2723; margin-bottom:20px;"><br>
+        <button onclick="checkPassword()" style="width:100%;">Unlock</button>
     </div>
 </div>
 
 <div class="book-container">
     <div class="book" id="myBook">
         <div class="page cover" id="p0">
-            <h1 style="font-size: 60px; margin:0;">📜</h1>
-            <h2 style="font-family: 'Dancing Script'; font-size: 45px;">My Diary</h2>
+            <h1 style="font-size: 70px; margin:0;">📔</h1>
+            <h2 style="font-family: 'Dancing Script'; font-size: 48px; margin: 10px 0;">My Diary</h2>
+            <div style="width: 50px; height: 2px; background: #d7ccc8; margin: 10px auto;"></div>
             <p style="font-family: 'Caveat'; font-size: 22px; color: #d7ccc8;">Lekha hoyni ja kichu, thakbe ekhane...</p>
         </div>
     </div>
 </div>
 
 <div class="controls" id="uiControls" style="display:none;">
-    <button onclick="prevPage()">⬅️ Prev</button>
+    <button onclick="prevPage()">⬅️ Back</button>
     
     <select id="fontSelect" onchange="changeFont(this.value)">
         <option value="'Hind Siliguri'">Hind (Normal)</option>
-        <option value="'Mina'">Mina (Handwriting)</option>
+        <option value="'Mina'">Mina (Neat Pen)</option>
         <option value="'Galada'">Galada (Bengali Art)</option>
         <option value="'Atma'">Atma (Playful)</option>
-        <option value="'Caveat'">Caveat (Pen Style)</option>
+        <option value="'Caveat'">Caveat (Handwriting)</option>
         <option value="'Dancing Script'">Dancing (Cursive)</option>
         <option value="'Satisfy'">Satisfy (Vintage)</option>
         <option value="'Indie Flower'">Indie (Marker)</option>
     </select>
 
-    <label for="photoInput">🖼️ Add Photo</label>
+    <label for="photoInput">🖼️ Photo</label>
     <input type="file" id="photoInput" accept="image/*" multiple onchange="handleMultiplePhotos(event)">
     <button class="save-btn" onclick="saveCurrentPage()">💾 Save</button>
     <button onclick="handleNext()">Next ➡️</button>
@@ -164,8 +165,8 @@
             const img = document.createElement('img');
             img.src = src;
             img.className = 'scattered-photo';
-            img.style.left = Math.random() * (window.innerWidth - 150) + 'px';
-            img.style.top = Math.random() * (window.innerHeight - 150) + 'px';
+            img.style.left = Math.random() * (window.innerWidth - 200) + 'px';
+            img.style.top = Math.random() * (window.innerHeight - 200) + 'px';
             img.style.transform = `rotate(${(Math.random() - 0.5) * 40}deg)`;
             container.appendChild(img);
         });
@@ -176,13 +177,13 @@
         pagePhotos[index] = photos || [];
         const date = dateStr || new Date().toLocaleDateString('bn-BD');
         const page = document.createElement('div');
-        page.className = 'page';
+        page.className = 'page paper-texture';
         page.id = `p${index}`;
         page.style.zIndex = 100 - index;
         page.innerHTML = `
-            <div style="font-size:14px; font-weight:bold; border-bottom:1px solid rgba(0,0,0,0.1); font-family:'Caveat';">Date: ${date}</div>
+            <div style="font-size:14px; font-weight:bold; border-bottom:1px solid rgba(0,0,0,0.1); font-family:serif;">Date: ${date}</div>
             <textarea id="text${index}">${content}</textarea>
-            <p style="text-align:right; font-size:10px; color:rgba(0,0,0,0.4); margin:0;">Page: ${index}</p>
+            <p style="text-align:right; font-size:10px; opacity:0.5; margin:0;">Page ${index}</p>
         `;
         document.getElementById('myBook').appendChild(page);
         sessionMaxPage = index;
@@ -195,7 +196,7 @@
             content: text,
             date: new Date().toLocaleDateString('bn-BD'),
             photos: pagePhotos[currentPageIndex] || []
-        }).then(() => alert("Saved Successfully!"));
+        }).then(() => alert("Smriti Shongrokkhito Hoyeche!"));
     }
 
     function initGestures() {
