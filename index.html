@@ -4,36 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My Diary</title>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500&family=Caveat:wght@500;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500&family=Caveat:wght@500;700&family=Dancing+Script:wght@700&family=Galada&family=Mina:wght@400;700&family=Atma:wght@500&family=Indie+Flower&family=Satisfy&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --bg-color: #dfd3c3; --page-color: #fffdf5; --text-color: #3d3d3d; --line-color: #d1c4b9; --book-border: #8b5e3c; --font-bn: 'Hind Siliguri', sans-serif; }
-        [data-theme="dark"] { --bg-color: #1a1a1a; --page-color: #2c2c2c; --text-color: #d1d1d1; --line-color: #444; --book-border: #4a301d; }
+        :root { 
+            --bg-color: #3e2723; 
+            --page-color: #f4e4bc; 
+            --text-color: #4e342e; 
+            --line-color: #d7ccc8; 
+            --book-border: #5d4037; 
+            --current-font: 'Hind Siliguri', sans-serif; 
+        }
         
-        body { background: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; font-family: var(--font-bn); transition: 0.5s; overflow: hidden; touch-action: none; }
+        body { 
+            background: var(--bg-color); 
+            background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); 
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; font-family: var(--current-font); transition: 0.5s; overflow: hidden; touch-action: none; 
+        }
         
         #bgPhotos { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-        .scattered-photo { position: absolute; width: 130px; height: 130px; background: white; padding: 6px; box-shadow: 3px 3px 12px rgba(0,0,0,0.2); border: 1px solid #ddd; object-fit: cover; border-radius: 2px; }
+        .scattered-photo { 
+            position: absolute; width: 130px; height: 130px; background: #fffdf5; padding: 8px; 
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.4); border: 1px solid #dcd1b3; 
+            object-fit: cover; border-radius: 2px; filter: sepia(0.2); 
+        }
 
         .book-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; padding: 20px; box-sizing: border-box; }
         .book { width: 100%; height: 650px; position: relative; transform-style: preserve-3d; display: none; cursor: grab; }
-        .page { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); background: var(--page-color); box-shadow: inset 3px 0px 20px rgba(0,0,0,0.1), 5px 5px 15px rgba(0,0,0,0.2); border-radius: 0 15px 15px 0; padding: 35px 25px; box-sizing: border-box; color: var(--text-color); backface-visibility: hidden; display: flex; flex-direction: column; }
+        
+        .page { 
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; 
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); 
+            background: var(--page-color); 
+            background-image: url('https://www.transparenttextures.com/patterns/papyros.png'); 
+            box-shadow: inset 5px 0px 30px rgba(0,0,0,0.2), 10px 10px 20px rgba(0,0,0,0.3); 
+            border-radius: 0 15px 15px 0; padding: 40px 30px; box-sizing: border-box; color: var(--text-color); 
+            backface-visibility: hidden; display: flex; flex-direction: column; 
+        }
         .page.flipped { transform: rotateY(-180deg); z-index: 0; }
         
-        .cover { background: var(--book-border); color: white; justify-content: center; align-items: center; text-align: center; border-left: 12px solid #5d4037; border-radius: 5px 15px 15px 5px; z-index: 100 !important; }
+        .cover { 
+            background: var(--book-border); color: #f4e4bc; justify-content: center; align-items: center; text-align: center; 
+            border-left: 15px solid #3e2723; border-radius: 5px 15px 15px 5px; z-index: 100 !important; 
+        }
         
-        textarea { width: 100%; flex-grow: 1; border: none; background: transparent; background-image: linear-gradient(var(--line-color) 1px, transparent 1px); background-size: 100% 38px; line-height: 38px; font-size: 21px; font-family: var(--font-bn); resize: none; outline: none; color: var(--text-color); margin-top: 10px; }
+        textarea { 
+            width: 100%; flex-grow: 1; border: none; background: transparent; 
+            background-image: linear-gradient(var(--line-color) 1px, transparent 1px); 
+            background-size: 100% 38px; line-height: 38px; font-size: 22px; 
+            font-family: inherit; resize: none; outline: none; color: var(--text-color); margin-top: 15px; 
+        }
         
-        .controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(93, 64, 55, 0.9); padding: 15px; display: flex; gap: 8px; z-index: 1000; justify-content: center; backdrop-filter: blur(5px); }
-        button, label { padding: 10px 16px; border: none; border-radius: 20px; cursor: pointer; background: white; color: #5d4037; font-weight: bold; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: 0.2s; }
-        .save-btn { background: #27ae60 !important; color: white !important; }
+        .controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(62, 39, 35, 0.95); padding: 12px; display: flex; gap: 8px; z-index: 1000; justify-content: center; flex-wrap: wrap; backdrop-filter: blur(5px); }
+        button, label, select { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; background: #f4e4bc; color: #3e2723; font-weight: bold; font-size: 12px; border: 1px solid #d7ccc8; }
+        .save-btn { background: #5d4037 !important; color: white !important; }
 
-        .logout-btn { position: fixed; top: 15px; left: 15px; background: #c0392b; color: white; z-index: 1001; }
-        .dark-mode-toggle { position: fixed; top: 12px; right: 15px; font-size: 26px; background: none; border: none; cursor: pointer; z-index: 1001; }
-        
-        #loginOverlay { position: fixed; inset: 0; background: #222; display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: white; padding: 35px; border-radius: 20px; text-align: center; width: 85%; max-width: 300px; }
+        #loginOverlay { position: fixed; inset: 0; background: #1a120b; display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: #f4e4bc; padding: 35px; border-radius: 10px; text-align: center; width: 85%; max-width: 300px; border: 2px solid #5d4037; }
+        input[type="password"] { padding: 12px; width: 90%; border-radius: 5px; border: 1px solid #5d4037; background: #fffdf5; margin-bottom: 15px; }
         input[type="file"] { display: none; }
     </style>
 </head>
@@ -41,30 +70,39 @@
 
 <div id="bgPhotos"></div>
 
-<button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
-<button id="logoutBtn" class="logout-btn" style="display:none;" onclick="location.reload()">🔒 Logout</button>
-
 <div id="loginOverlay">
     <div class="login-box">
         <h1 style="margin:0;">📔</h1>
-        <h3 style="color:#333;">My Diary</h3>
-        <input type="password" id="passInput" placeholder="Password..." style="padding:12px; width:90%; border-radius:10px; border:1px solid #ccc; margin-bottom:15px;"><br>
-        <button onclick="checkPassword()" style="width:100%; background:#5d4037; color:white;">Unlock</button>
+        <h3 style="color:#3e2723; font-family: 'Dancing Script';">My Diary</h3>
+        <input type="password" id="passInput" placeholder="Password..."><br>
+        <button onclick="checkPassword()" style="width:100%; background:#3e2723; color:#f4e4bc;">Unlock</button>
     </div>
 </div>
 
 <div class="book-container">
     <div class="book" id="myBook">
         <div class="page cover" id="p0">
-            <h1 style="font-size: 55px; margin:0;">📓</h1>
+            <h1 style="font-size: 60px; margin:0;">📜</h1>
             <h2 style="font-family: 'Dancing Script'; font-size: 45px;">My Diary</h2>
-            <p style="font-family: 'Caveat'; font-size: 22px;">Lekha hoyni ja kichu, thakbe ekhane...</p>
+            <p style="font-family: 'Caveat'; font-size: 22px; color: #d7ccc8;">Lekha hoyni ja kichu, thakbe ekhane...</p>
         </div>
     </div>
 </div>
 
 <div class="controls" id="uiControls" style="display:none;">
     <button onclick="prevPage()">⬅️ Prev</button>
+    
+    <select id="fontSelect" onchange="changeFont(this.value)">
+        <option value="'Hind Siliguri'">Hind (Normal)</option>
+        <option value="'Mina'">Mina (Handwriting)</option>
+        <option value="'Galada'">Galada (Bengali Art)</option>
+        <option value="'Atma'">Atma (Playful)</option>
+        <option value="'Caveat'">Caveat (Pen Style)</option>
+        <option value="'Dancing Script'">Dancing (Cursive)</option>
+        <option value="'Satisfy'">Satisfy (Vintage)</option>
+        <option value="'Indie Flower'">Indie (Marker)</option>
+    </select>
+
     <label for="photoInput">🖼️ Add Photo</label>
     <input type="file" id="photoInput" accept="image/*" multiple onchange="handleMultiplePhotos(event)">
     <button class="save-btn" onclick="saveCurrentPage()">💾 Save</button>
@@ -89,9 +127,9 @@
     let startX = 0;
     let pagePhotos = {};
 
-    function toggleDarkMode() {
-        const body = document.body;
-        body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark');
+    function changeFont(fontName) {
+        document.body.style.setProperty('--current-font', fontName);
+        document.querySelectorAll('textarea').forEach(t => t.style.fontFamily = fontName);
     }
 
     function checkPassword() {
@@ -99,17 +137,15 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('myBook').style.display = 'block';
             document.getElementById('uiControls').style.display = 'flex';
-            document.getElementById('logoutBtn').style.display = 'block';
             loadAllPages();
             initGestures();
-        } else alert("Wrong!");
+        } else alert("Wrong Password!");
     }
 
     function handleMultiplePhotos(event) {
         if(currentPageIndex === 0) return;
         const files = event.target.files;
         if (!pagePhotos[currentPageIndex]) pagePhotos[currentPageIndex] = [];
-        
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -144,9 +180,9 @@
         page.id = `p${index}`;
         page.style.zIndex = 100 - index;
         page.innerHTML = `
-            <div style="font-size:13px; font-weight:bold; border-bottom:1px solid var(--line-color); padding-bottom:5px;">📅 ${date}</div>
+            <div style="font-size:14px; font-weight:bold; border-bottom:1px solid rgba(0,0,0,0.1); font-family:'Caveat';">Date: ${date}</div>
             <textarea id="text${index}">${content}</textarea>
-            <p style="text-align:right; font-size:10px; color:gray; margin:0;">Page: ${index}</p>
+            <p style="text-align:right; font-size:10px; color:rgba(0,0,0,0.4); margin:0;">Page: ${index}</p>
         `;
         document.getElementById('myBook').appendChild(page);
         sessionMaxPage = index;
