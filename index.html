@@ -3,75 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Secret Diary</title>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&family=Caveat:wght@400;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <title>My Personal Photo Diary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500&family=Caveat:wght@500;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root {
-            --bg-color: #dfd3c3;
-            --page-color: #fffdf5;
-            --text-color: #3d3d3d;
-            --line-color: #d1c4b9;
-            --book-border: #8b5e3c;
-            --font-main: 'Hind Siliguri', 'Segoe UI', sans-serif;
-            --font-hand: 'Caveat', cursive;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #1a1a1a;
-            --page-color: #2c2c2c;
-            --text-color: #d1d1d1;
-            --line-color: #444;
-            --book-border: #4a301d;
-        }
-
-        body { background: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; font-family: var(--font-main); transition: 0.5s; overflow: hidden; }
-        .book { width: 550px; height: 700px; position: relative; transform-style: preserve-3d; display: none; }
-        .page { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1); background: var(--page-color); box-shadow: inset 3px 0px 20px rgba(0,0,0,0.1), 5px 5px 15px rgba(0,0,0,0.2); border-radius: 0 15px 15px 0; padding: 50px 40px; box-sizing: border-box; color: var(--text-color); backface-visibility: hidden; z-index: 1; }
+        :root { --bg-color: #dfd3c3; --page-color: #fffdf5; --text-color: #3d3d3d; --line-color: #d1c4b9; --book-border: #8b5e3c; --font-bn: 'Hind Siliguri', sans-serif; }
+        [data-theme="dark"] { --bg-color: #1a1a1a; --page-color: #2c2c2c; --text-color: #d1d1d1; --line-color: #444; --book-border: #4a301d; }
+        body { background: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; font-family: var(--font-bn); transition: 0.5s; overflow: hidden; }
+        .book { width: 550px; height: 780px; position: relative; transform-style: preserve-3d; display: none; }
+        .page { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1); background: var(--page-color); box-shadow: inset 3px 0px 20px rgba(0,0,0,0.1), 5px 5px 15px rgba(0,0,0,0.2); border-radius: 0 15px 15px 0; padding: 40px; box-sizing: border-box; color: var(--text-color); backface-visibility: hidden; z-index: 1; display: flex; flex-direction: column; }
         .page.flipped { transform: rotateY(-180deg); z-index: 0; }
-        .cover { background: var(--book-border); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border-left: 15px solid #5d4037; border-radius: 5px 15px 15px 5px; z-index: 100 !important; }
-
-        h2 { font-family: 'Dancing Script', cursive; font-size: 50px; margin: 10px 0; }
-        textarea { 
-            width: 100%; height: 85%; border: none; background: transparent; 
-            background-image: linear-gradient(var(--line-color) 1px, transparent 1px); 
-            background-size: 100% 40px; line-height: 40px; font-size: 22px; 
-            font-family: var(--font-main); /* Bangla'r jonno Hind Siliguri perfect */
-            resize: none; outline: none; color: var(--text-color); font-weight: 400;
-        }
-
-        .controls { position: fixed; bottom: 30px; display: flex; gap: 15px; z-index: 1000; }
-        button { padding: 12px 25px; border: none; border-radius: 30px; cursor: pointer; background: #5d4037; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.3s; }
-        .dark-mode-toggle { position: fixed; top: 25px; right: 25px; font-size: 30px; background: none; border: none; cursor: pointer; z-index: 1001; }
+        .cover { background: var(--book-border); color: white; justify-content: center; align-items: center; text-align: center; border-left: 15px solid #5d4037; border-radius: 5px 15px 15px 5px; z-index: 100 !important; }
+        .photo-frame { width: 190px; height: 190px; background: #fff; padding: 10px; box-shadow: 3px 3px 15px rgba(0,0,0,0.2); transform: rotate(-2deg); margin: 10px auto; border: 1px solid #eee; cursor: pointer; position: relative; flex-shrink: 0; }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .heart-btn { position: absolute; top: 15px; right: 15px; font-size: 25px; cursor: pointer; transition: 0.3s; filter: grayscale(1); }
+        .heart-btn.active { filter: grayscale(0); transform: scale(1.2); }
+        textarea { width: 100%; flex-grow: 1; border: none; background: transparent; background-image: linear-gradient(var(--line-color) 1px, transparent 1px); background-size: 100% 40px; line-height: 40px; font-size: 22px; font-family: var(--font-bn); resize: none; outline: none; color: var(--text-color); margin-top: 10px; }
+        .controls { position: fixed; bottom: 20px; display: flex; gap: 8px; z-index: 1000; flex-wrap: wrap; justify-content: center; }
+        button, label { padding: 10px 15px; border: none; border-radius: 20px; cursor: pointer; background: #5d4037; color: white; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        .logout-btn { position: fixed; top: 20px; left: 20px; background: #c0392b; }
+        .dark-mode-toggle { position: fixed; top: 15px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; z-index: 1001; }
         #loginOverlay { position: fixed; inset: 0; background: #222; display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: white; padding: 50px; border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; width: 280px; }
+        input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
 <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+<button id="logoutBtn" class="logout-btn" style="display:none;" onclick="location.reload()">🔒 Logout</button>
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h1 style="margin:0; font-size: 60px;">📔</h1>
-        <h3 style="color:#333;">My Secret Diary</h3>
-        <input type="password" id="passInput" placeholder="Password din..." style="padding:12px; margin-bottom:15px; width:90%; border-radius:10px; border:1px solid #ccc;"><br>
-        <button onclick="checkPassword()" style="width:100%">Diary Khulun</button>
+        <h1 style="margin:0;">📔</h1>
+        <h3 style="font-family: 'Dancing Script';">My Secret Diary</h3>
+        <input type="password" id="passInput" placeholder="Password..." style="padding:10px; width:90%; margin-bottom:15px; border-radius:8px; border:1px solid #ccc;"><br>
+        <button onclick="checkPassword()" style="width:100%">Open Diary</button>
     </div>
 </div>
 
 <div class="book" id="myBook">
     <div class="page cover" id="p0">
-        <h1 style="font-size: 60px; margin:0;">📓</h1>
-        <h2>My Diary</h2>
-        <p style="font-size: 20px;">Lekha hoyni ja kichu, thakbe ekhane...</p>
+        <h1 style="font-size: 50px; margin:0;">📓</h1>
+        <h2 style="font-family: 'Dancing Script'; font-size: 45px;">My Diary</h2>
+        <p style="font-family: 'Caveat'; font-size: 24px;">Lekha ar chobite sajao smriti gulo...</p>
     </div>
 </div>
 
 <div class="controls" id="uiControls" style="display:none;">
     <button onclick="prevPage()">⬅️ Prev</button>
-    <button onclick="saveCurrentPage()">💾 Save Pata</button>
+    <label for="photoInput">🖼️ Photo</label>
+    <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
+    <button onclick="saveCurrentPage()">💾 Save</button>
     <button onclick="handleNext()">Next ➡️</button>
 </div>
 
@@ -85,44 +69,83 @@
         messagingSenderId: "1041502354402",
         appId: "1:1041502354402:web:3db83617c05b1c3d9f97bb"
     };
-
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    
+
     let currentPageIndex = 0;
     let sessionMaxPage = 0;
 
     function toggleDarkMode() {
         const body = document.body;
         const btn = document.querySelector('.dark-mode-toggle');
-        if(body.getAttribute('data-theme') === 'dark') {
-            body.removeAttribute('data-theme');
-            btn.innerText = '🌙';
-        } else {
-            body.setAttribute('data-theme', 'dark');
-            btn.innerText = '☀️';
-        }
+        body.getAttribute('data-theme') === 'dark' ? (body.removeAttribute('data-theme'), btn.innerText = '🌙') : (body.setAttribute('data-theme', 'dark'), btn.innerText = '☀️');
     }
 
     function checkPassword() {
-        if(document.getElementById('passInput').value === "1234") { // Ekhane password change korte paro
+        if(document.getElementById('passInput').value === "1234") {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('myBook').style.display = 'block';
             document.getElementById('uiControls').style.display = 'flex';
+            document.getElementById('logoutBtn').style.display = 'block';
             loadAllPages();
-        } else { alert("Vul Password!"); }
+        } else alert("Vul Password!");
     }
 
-    function createPageElement(index, content = "", dateStr = "") {
+    function createPageElement(index, content = "", dateStr = "", photoBase64 = "", isFav = false) {
         if (document.getElementById(`p${index}`)) return;
         const date = dateStr || new Date().toLocaleDateString('bn-BD');
         const page = document.createElement('div');
         page.className = 'page';
         page.id = `p${index}`;
         page.style.zIndex = 100 - index;
-        page.innerHTML = `<h3>Date: ${date}</h3><textarea id="text${index}">${content}</textarea><p style="text-align:right; font-size:12px; color:gray;">Pata: ${index}</p><input type="hidden" id="date${index}" value="${date}">`;
+        
+        page.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4 style="margin:0; font-family: 'Dancing Script';">Date: ${date}</h4>
+                <span class="heart-btn ${isFav ? 'active' : ''}" id="heart${index}" onclick="toggleHeart(${index})">❤️</span>
+            </div>
+            <div class="photo-frame" onclick="document.getElementById('photoInput').click()">
+                <img src="${photoBase64 || ''}" id="img${index}" style="${photoBase64 ? '' : 'display:none'}">
+                ${!photoBase64 ? `<div id="place${index}" style="color:#999; padding-top:70px; font-size:12px; text-align:center;">Add Photo</div>` : ''}
+            </div>
+            <textarea id="text${index}" placeholder="Likho ekhane...">${content}</textarea>
+            <p style="text-align:right; font-size:10px; color:gray; margin:0;">Pata: ${index}</p>
+        `;
         document.getElementById('myBook').appendChild(page);
         sessionMaxPage = index;
+    }
+
+    function toggleHeart(index) {
+        const btn = document.getElementById(`heart${index}`);
+        btn.classList.toggle('active');
+    }
+
+    function handlePhotoUpload(event) {
+        if(currentPageIndex === 0) return;
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.getElementById(`img${currentPageIndex}`);
+            img.src = e.target.result;
+            img.style.display = 'block';
+            if(document.getElementById(`place${currentPageIndex}`)) document.getElementById(`place${currentPageIndex}`).style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+    }
+
+    function saveCurrentPage() {
+        if(currentPageIndex === 0) return;
+        const text = document.getElementById(`text${currentPageIndex}`).value;
+        const img = document.getElementById(`img${currentPageIndex}`).src;
+        const isFav = document.getElementById(`heart${currentPageIndex}`).classList.contains('active');
+        const date = new Date().toLocaleDateString('bn-BD');
+        
+        database.ref('diaryPages/' + currentPageIndex).set({
+            content: text,
+            date: date,
+            photo: img.startsWith('data:image') ? img : "",
+            favorite: isFav
+        }).then(() => alert("Saved!"));
     }
 
     function handleNext() { (currentPageIndex >= sessionMaxPage) ? addNewPage() : nextPage(); }
@@ -130,19 +153,13 @@
     function nextPage() { const page = document.getElementById(`p${currentPageIndex}`); if (page) { page.classList.add('flipped'); currentPageIndex++; } }
     function prevPage() { if (currentPageIndex > 0) { currentPageIndex--; document.getElementById(`p${currentPageIndex}`).classList.remove('flipped'); } }
 
-    function saveCurrentPage() {
-        if(currentPageIndex === 0) return;
-        const text = document.getElementById(`text${currentPageIndex}`).value;
-        const date = document.getElementById(`date${currentPageIndex}`).value;
-        database.ref('diaryPages/' + currentPageIndex).set({ content: text, date: date }).then(() => alert("Saved!"));
-    }
-
     function loadAllPages() {
         database.ref('diaryPages/').once('value').then((snapshot) => {
             const data = snapshot.val();
             if (data) {
-                const keys = Object.keys(data).sort((a,b) => parseInt(a) - parseInt(b));
-                keys.forEach(key => createPageElement(parseInt(key), data[key].content, data[key].date));
+                Object.keys(data).sort((a,b) => a-b).forEach(key => {
+                    createPageElement(key, data[key].content, data[key].date, data[key].photo, data[key].favorite);
+                });
             }
         });
     }
