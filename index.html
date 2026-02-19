@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Interactive Photo Diary</title>
+    <title>My Scrapbook Diary</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500&family=Caveat:wght@500;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -13,32 +13,33 @@
         
         body { background: var(--bg-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; perspective: 2000px; font-family: var(--font-bn); transition: 0.5s; overflow: hidden; touch-action: none; }
         
-        .book-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 550px; padding: 20px; box-sizing: border-box; }
-        .book { width: 100%; height: 680px; position: relative; transform-style: preserve-3d; display: none; cursor: grab; }
-        .book:active { cursor: grabbing; }
-        
-        .page { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); background: var(--page-color); box-shadow: inset 3px 0px 20px rgba(0,0,0,0.1), 5px 5px 15px rgba(0,0,0,0.2); border-radius: 0 15px 15px 0; padding: 35px 25px; box-sizing: border-box; color: var(--text-color); backface-visibility: hidden; z-index: 1; display: flex; flex-direction: column; user-select: none; }
+        /* Background Photos - Scattering Effect */
+        #bgPhotos { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+        .scattered-photo { position: absolute; width: 120px; height: 120px; background: white; padding: 5px; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); border: 1px solid #ddd; object-fit: cover; }
+
+        .book { width: 450px; height: 600px; position: relative; transform-style: preserve-3d; display: none; cursor: grab; z-index: 10; }
+        .page { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left; transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1); background: var(--page-color); box-shadow: inset 3px 0px 20px rgba(0,0,0,0.1), 5px 5px 15px rgba(0,0,0,0.2); border-radius: 0 15px 15px 0; padding: 30px; box-sizing: border-box; color: var(--text-color); backface-visibility: hidden; display: flex; flex-direction: column; }
         .page.flipped { transform: rotateY(-180deg); z-index: 0; }
         
-        .cover { background: var(--book-border); color: white; justify-content: center; align-items: center; text-align: center; border-left: 12px solid #5d4037; border-radius: 5px 15px 15px 5px; z-index: 100 !important; }
+        .cover { background: var(--book-border); color: white; justify-content: center; align-items: center; text-align: center; border-left: 10px solid #5d4037; border-radius: 5px 15px 15px 5px; z-index: 100 !important; }
         
-        .photo-frame { width: 170px; height: 170px; background: #fff; padding: 8px; box-shadow: 2px 2px 12px rgba(0,0,0,0.2); transform: rotate(-2deg); margin: 10px auto; border: 1px solid #eee; flex-shrink: 0; pointer-events: none; }
-        .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+        textarea { width: 100%; flex-grow: 1; border: none; background: transparent; background-image: linear-gradient(var(--line-color) 1px, transparent 1px); background-size: 100% 35px; line-height: 35px; font-size: 20px; font-family: var(--font-bn); resize: none; outline: none; color: var(--text-color); margin-top: 10px; }
         
-        textarea { width: 100%; flex-grow: 1; border: none; background: transparent; background-image: linear-gradient(var(--line-color) 1px, transparent 1px); background-size: 100% 38px; line-height: 38px; font-size: 20px; font-family: var(--font-bn); resize: none; outline: none; color: var(--text-color); margin-top: 10px; }
-        
-        .controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.1); padding: 15px; display: flex; gap: 10px; z-index: 1000; justify-content: center; }
-        button, label { padding: 12px 18px; border: none; border-radius: 25px; cursor: pointer; background: #5d4037; color: white; font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        
+        .controls { position: fixed; bottom: 20px; display: flex; gap: 8px; z-index: 1000; flex-wrap: wrap; justify-content: center; width: 100%; }
+        button, label { padding: 10px 15px; border: none; border-radius: 20px; cursor: pointer; background: #5d4037; color: white; font-weight: bold; font-size: 13px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .save-btn { background: #27ae60 !important; }
+
         .logout-btn { position: fixed; top: 15px; left: 15px; background: #c0392b; z-index: 1001; }
-        .dark-mode-toggle { position: fixed; top: 12px; right: 15px; font-size: 26px; background: none; border: none; cursor: pointer; z-index: 1001; }
+        .dark-mode-toggle { position: fixed; top: 10px; right: 15px; font-size: 26px; background: none; border: none; cursor: pointer; z-index: 1001; }
         
         #loginOverlay { position: fixed; inset: 0; background: #222; display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        .login-box { background: white; padding: 35px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; }
+        .login-box { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 280px; }
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
+
+<div id="bgPhotos"></div>
 
 <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
 <button id="logoutBtn" class="logout-btn" style="display:none;" onclick="location.reload()">🔒 Logout</button>
@@ -46,26 +47,26 @@
 <div id="loginOverlay">
     <div class="login-box">
         <h1>📔</h1>
-        <h3 style="color:#333;">Private Photo Diary</h3>
-        <input type="password" id="passInput" placeholder="Password..." style="padding:12px; width:90%; margin-bottom:15px; border-radius:10px; border:1px solid #ccc;"><br>
+        <h3 style="color:#333;">My Scrapbook Diary</h3>
+        <input type="password" id="passInput" placeholder="Password..." style="padding:10px; width:90%; border-radius:8px; border:1px solid #ccc; margin-bottom:15px;"><br>
         <button onclick="checkPassword()" style="width:100%; background:#5d4037; color:white;">Unlock</button>
     </div>
 </div>
 
-<div class="book-container">
-    <div class="book" id="myBook">
-        <div class="page cover" id="p0">
-            <h1 style="font-size: 55px; margin:0;">📓</h1>
-            <h2 style="font-family: 'Dancing Script'; font-size: 40px;">My Diary</h2>
-            <p style="font-family: 'Caveat'; font-size: 22px;">Swipe to turn pages...</p>
-        </div>
+<div class="book" id="myBook">
+    <div class="page cover" id="p0">
+        <h1 style="font-size: 50px; margin:0;">📓</h1>
+        <h2 style="font-family: 'Dancing Script';">My Diary</h2>
+        <p style="font-family: 'Caveat'; font-size: 20px;">Lekha o chobir shonshar...</p>
     </div>
 </div>
 
 <div class="controls" id="uiControls" style="display:none;">
+    <button onclick="prevPage()">⬅️ Prev</button>
     <label for="photoInput">🖼️ Add Photo</label>
-    <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
-    <button onclick="saveCurrentPage()" style="background: #27ae60;">💾 Save This Page</button>
+    <input type="file" id="photoInput" accept="image/*" multiple onchange="handleMultiplePhotos(event)">
+    <button class="save-btn" onclick="saveCurrentPage()">💾 Save</button>
+    <button onclick="handleNext()">Next ➡️</button>
 </div>
 
 <script>
@@ -84,11 +85,11 @@
     let currentPageIndex = 0;
     let sessionMaxPage = 0;
     let startX = 0;
+    let pagePhotos = {}; // Store multiple photos per page index
 
     function toggleDarkMode() {
         const body = document.body;
-        const btn = document.querySelector('.dark-mode-toggle');
-        body.getAttribute('data-theme') === 'dark' ? (body.removeAttribute('data-theme'), btn.innerText = '🌙') : (body.setAttribute('data-theme', 'dark'), btn.innerText = '☀️');
+        body.getAttribute('data-theme') === 'dark' ? body.removeAttribute('data-theme') : body.setAttribute('data-theme', 'dark');
     }
 
     function checkPassword() {
@@ -98,87 +99,118 @@
             document.getElementById('uiControls').style.display = 'flex';
             document.getElementById('logoutBtn').style.display = 'block';
             loadAllPages();
-            initTouch();
-        } else alert("Wrong Password!");
+            initGestures();
+        } else alert("Wrong!");
     }
 
-    // --- Swipe & Drag Logic ---
-    function initTouch() {
-        const book = document.getElementById('myBook');
+    function handleMultiplePhotos(event) {
+        if(currentPageIndex === 0) return;
+        const files = event.target.files;
+        if (!pagePhotos[currentPageIndex]) pagePhotos[currentPageIndex] = [];
         
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                pagePhotos[currentPageIndex].push(e.target.result);
+                renderBackgroundPhotos();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function renderBackgroundPhotos() {
+        const container = document.getElementById('bgPhotos');
+        container.innerHTML = '';
+        const photos = pagePhotos[currentPageIndex] || [];
+        
+        photos.forEach((src, i) => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.className = 'scattered-photo';
+            // Randomly scatter photos around the screen
+            const randomX = Math.random() * (window.innerWidth - 150);
+            const randomY = Math.random() * (window.innerHeight - 150);
+            const randomRot = (Math.random() - 0.5) * 40;
+            
+            img.style.left = randomX + 'px';
+            img.style.top = randomY + 'px';
+            img.style.transform = `rotate(${randomRot}deg)`;
+            container.appendChild(img);
+        });
+    }
+
+    function createPageElement(index, content = "", dateStr = "", photos = []) {
+        if (document.getElementById(`p${index}`)) return;
+        pagePhotos[index] = photos || [];
+        const date = dateStr || new Date().toLocaleDateString('bn-BD');
+        const page = document.createElement('div');
+        page.className = 'page';
+        page.id = `p${index}`;
+        page.style.zIndex = 100 - index;
+        page.innerHTML = `
+            <div style="font-size:12px; font-weight:bold;">📅 ${date}</div>
+            <textarea id="text${index}">${content}</textarea>
+            <p style="text-align:right; font-size:10px; color:gray; margin:0;">Pata: ${index}</p>
+        `;
+        document.getElementById('myBook').appendChild(page);
+        sessionMaxPage = index;
+    }
+
+    function saveCurrentPage() {
+        if(currentPageIndex === 0) return;
+        const text = document.getElementById(`text${currentPageIndex}`).value;
+        database.ref('diaryPages/' + currentPageIndex).set({
+            content: text,
+            date: new Date().toLocaleDateString('bn-BD'),
+            photos: pagePhotos[currentPageIndex] || []
+        }).then(() => alert("Saved!"));
+    }
+
+    function initGestures() {
+        const book = document.getElementById('myBook');
         book.addEventListener('touchstart', e => startX = e.touches[0].clientX);
         book.addEventListener('touchend', e => handleSwipe(e.changedTouches[0].clientX));
-        
         book.addEventListener('mousedown', e => startX = e.clientX);
         book.addEventListener('mouseup', e => handleSwipe(e.clientX));
     }
 
     function handleSwipe(endX) {
         const diff = startX - endX;
-        if (Math.abs(diff) < 50) return; // Ignore small movements
-        
-        if (diff > 50) { // Swipe Left -> Next
-            if (currentPageIndex >= sessionMaxPage) addNewPage();
-            else nextPage();
-        } else { // Swipe Right -> Prev
-            prevPage();
-        }
+        if (Math.abs(diff) < 50) return;
+        diff > 50 ? handleNext() : prevPage();
     }
 
-    function createPageElement(index, content = "", dateStr = "", photoBase64 = "") {
-        if (document.getElementById(`p${index}`)) return;
-        const date = dateStr || new Date().toLocaleDateString('bn-BD');
-        const page = document.createElement('div');
-        page.className = 'page';
-        page.id = `p${index}`;
-        page.style.zIndex = 100 - index;
-        
-        page.innerHTML = `
-            <div style="font-size:13px; font-weight:bold; margin-bottom:10px;">📅 ${date}</div>
-            <div class="photo-frame">
-                <img src="${photoBase64 || ''}" id="img${index}" style="${photoBase64 ? '' : 'display:none'}">
-                ${!photoBase64 ? `<div id="place${index}" style="color:#999; padding-top:65px; font-size:12px; text-align:center;">No Photo</div>` : ''}
-            </div>
-            <textarea id="text${index}" placeholder="Likho ekhane...">${content}</textarea>
-            <p style="text-align:right; font-size:10px; color:gray; margin:0;">Page: ${index}</p>
-        `;
-        document.getElementById('myBook').appendChild(page);
-        sessionMaxPage = index;
+    function handleNext() { 
+        if (currentPageIndex >= sessionMaxPage) addNewPage(); 
+        else { nextPage(); renderBackgroundPhotos(); }
+    }
+    
+    function prevPage() { 
+        if (currentPageIndex > 0) { 
+            currentPageIndex--; 
+            document.getElementById(`p${currentPageIndex}`).classList.remove('flipped'); 
+            renderBackgroundPhotos();
+        } 
     }
 
-    function handlePhotoUpload(event) {
-        if(currentPageIndex === 0) return;
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = document.getElementById(`img${currentPageIndex}`);
-            img.src = e.target.result;
-            img.style.display = 'block';
-            if(document.getElementById(`place${currentPageIndex}`)) document.getElementById(`place${currentPageIndex}`).style.display = 'none';
-        };
-        reader.readAsDataURL(file);
+    function addNewPage() { 
+        let newIdx = parseInt(sessionMaxPage) + 1; 
+        createPageElement(newIdx); 
+        setTimeout(() => { nextPage(); renderBackgroundPhotos(); }, 100); 
     }
 
-    function saveCurrentPage() {
-        if(currentPageIndex === 0) return;
-        const text = document.getElementById(`text${currentPageIndex}`).value;
-        const img = document.getElementById(`img${currentPageIndex}`).src;
-        database.ref('diaryPages/' + currentPageIndex).set({
-            content: text,
-            date: new Date().toLocaleDateString('bn-BD'),
-            photo: img.startsWith('data:image') ? img : ""
-        }).then(() => alert("Saved!"));
+    function nextPage() { 
+        const page = document.getElementById(`p${currentPageIndex}`); 
+        if (page) { page.classList.add('flipped'); currentPageIndex++; } 
     }
-
-    function addNewPage() { let newIdx = parseInt(sessionMaxPage) + 1; createPageElement(newIdx); setTimeout(nextPage, 100); }
-    function nextPage() { const page = document.getElementById(`p${currentPageIndex}`); if (page) { page.classList.add('flipped'); currentPageIndex++; } }
-    function prevPage() { if (currentPageIndex > 0) { currentPageIndex--; document.getElementById(`p${currentPageIndex}`).classList.remove('flipped'); } }
 
     function loadAllPages() {
         database.ref('diaryPages/').once('value').then((snapshot) => {
             const data = snapshot.val();
             if (data) {
-                Object.keys(data).sort((a,b) => a-b).forEach(key => createPageElement(key, data[key].content, data[key].date, data[key].photo));
+                Object.keys(data).sort((a,b) => a-b).forEach(key => {
+                    createPageElement(key, data[key].content, data[key].date, data[key].photos);
+                });
             }
         });
     }
