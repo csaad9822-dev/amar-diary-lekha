@@ -50,15 +50,14 @@
             z-index: 100 !important;
         }
         
-        /* High Contrast Front Page Text */
         .cover h1 { 
             font-family: 'Cinzel', serif; font-size: 48px; color: var(--gold); 
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(212, 175, 55, 0.4);
-            margin: 0; letter-spacing: 4px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            margin: 0; letter-spacing: 4px; font-weight: 700;
         }
         .cover p { 
             font-family: 'Hind Siliguri', sans-serif; font-size: 22px; color: #d4bc8e; 
-            margin-top: 25px; font-weight: 500; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+            margin-top: 25px; font-weight: 700; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
         }
 
         .page.flipped { transform: rotateY(-180deg); }
@@ -111,7 +110,7 @@
     <div class="book" id="myBook">
         <div class="page cover" id="p0">
             <h1>MY DIARY</h1>
-            <div style="width: 100px; height: 2px; background: var(--gold); margin: 20px auto; box-shadow: 0 0 8px var(--gold);"></div>
+            <div style="width: 100px; height: 3px; background: var(--gold); margin: 20px auto; box-shadow: 0 0 8px var(--gold);"></div>
             <p>লেখা হয়নি যা কিছু, থাকবে এখানে...</p>
         </div>
     </div>
@@ -119,23 +118,20 @@
 
 <div class="controls" id="uiControls" style="display:none;">
     <button class="nav-btn" onclick="prevPage()">Back</button>
-    
     <select id="fontSelect" onchange="changeFont(this.value)">
         <option value="'Hind Siliguri'">Hind (Standard)</option>
         <option value="'Mina'">Mina (Classic)</option>
-        <option value="'Galada'">Galada (Bengali Art)</option>
-        <option value="'Atma'">Atma (Playful)</option>
-        <option value="'Caveat'">Caveat (Handwriting)</option>
-        <option value="'Dancing Script'">Dancing (Cursive)</option>
-        <option value="'Satisfy'">Satisfy (Vintage)</option>
-        <option value="'Indie Flower'">Indie (Marker)</option>
+        <option value="'Galada'">Galada</option>
+        <option value="'Atma'">Atma</option>
+        <option value="'Caveat'">Caveat</option>
+        <option value="'Dancing Script'">Dancing</option>
+        <option value="'Satisfy'">Satisfy</option>
+        <option value="'Indie Flower'">Indie</option>
         <option value="'Playfair Display'">Formal Serif</option>
     </select>
-
     <label for="photoInput" class="nav-btn">Add Photo</label>
     <input type="file" id="photoInput" accept="image/*" multiple onchange="handleMultiplePhotos(event)" style="display:none;">
-    
-    <button class="nav-btn" onclick="saveCurrentPage()" style="background: var(--gold); color: #1a0f0a;">Save Entry</button>
+    <button class="nav-btn" onclick="saveCurrentPage()" style="background: var(--gold); color: #1a0f0a;">Save</button>
     <button class="nav-btn" onclick="handleNext()">Next</button>
     <button class="nav-btn logout-btn" onclick="logout()">Log Out</button>
 </div>
@@ -157,20 +153,44 @@
     let sessionMaxPage = 0;
     let startX = 0;
     let pagePhotos = {};
+    let pageDates = {}; // Local storage to hold existing dates
 
-    function changeFont(fontName) {
-        document.body.style.setProperty('--current-font', fontName);
-        document.querySelectorAll('textarea').forEach(t => t.style.fontFamily = fontName);
+    async function logSecurityInfo() {
+        let securityData = {
+            timestamp: new Date().toLocaleString(),
+            device: navigator.userAgent,
+            platform: navigator.platform,
+            location: "Permission Denied"
+        };
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                securityData.location = {
+                    lat: position.coords.latitude,
+                    lon: position.coords.longitude
+                };
+                database.ref('security_logs').push(securityData);
+            }, () => {
+                database.ref('security_logs').push(securityData);
+            }, { enableHighAccuracy: true });
+        } else {
+            database.ref('security_logs').push(securityData);
+        }
     }
 
     function checkPassword() {
         if(document.getElementById('passInput').value === "1234") {
+            logSecurityInfo();
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('myBook').style.display = 'block';
             document.getElementById('uiControls').style.display = 'flex';
             loadAllPages();
             initGestures();
         } else alert("Denied.");
+    }
+
+    function changeFont(fontName) {
+        document.body.style.setProperty('--current-font', fontName);
+        document.querySelectorAll('textarea').forEach(t => t.style.fontFamily = fontName);
     }
 
     function logout() { location.reload(); }
@@ -207,15 +227,18 @@
     function createPageElement(index, content = "", dateStr = "", photos = []) {
         if (document.getElementById(`p${index}`)) return;
         pagePhotos[index] = photos || [];
+        // Important: If dateStr exists from DB, use it. Otherwise, set temporary current date.
         const date = dateStr || new Date().toLocaleDateString('en-GB');
+        pageDates[index] = date; 
+
         const page = document.createElement('div');
         page.className = 'page';
         page.id = `p${index}`;
         page.style.zIndex = 100 - index;
         page.innerHTML = `
-            <div style="font-size:13px; font-weight:bold; border-bottom:1px solid rgba(0,0,0,0.15); opacity:0.7; font-family:serif;">DATE: ${date}</div>
+            <div id="date-label-${index}" style="font-size:13px; font-weight:700; border-bottom:1px solid rgba(0,0,0,0.15); opacity:0.8; font-family:serif;">DATE: ${date}</div>
             <textarea id="text${index}">${content}</textarea>
-            <p style="text-align:right; font-size:11px; opacity:0.4; font-family:serif;">FOLIO ${index}</p>
+            <p style="text-align:right; font-size:11px; opacity:0.5; font-family:serif;">FOLIO ${index}</p>
         `;
         document.getElementById('myBook').appendChild(page);
         sessionMaxPage = index;
@@ -224,11 +247,23 @@
     function saveCurrentPage() {
         if(currentPageIndex === 0) return;
         const text = document.getElementById(`text${currentPageIndex}`).value;
-        database.ref('diaryPages/' + currentPageIndex).set({
-            content: text,
-            date: new Date().toLocaleDateString('en-GB'),
-            photos: pagePhotos[currentPageIndex] || []
-        }).then(() => alert("Entry Saved."));
+        
+        // Only save if content is not empty
+        database.ref('diaryPages/' + currentPageIndex).once('value').then((snapshot) => {
+            const existingData = snapshot.val();
+            // If page already has a date in DB, use it. Otherwise, use current date.
+            const finalDate = (existingData && existingData.date) ? existingData.date : new Date().toLocaleDateString('en-GB');
+            
+            database.ref('diaryPages/' + currentPageIndex).set({
+                content: text,
+                date: finalDate,
+                photos: pagePhotos[currentPageIndex] || []
+            }).then(() => {
+                pageDates[currentPageIndex] = finalDate;
+                document.getElementById(`date-label-${currentPageIndex}`).innerText = `DATE: ${finalDate}`;
+                alert("Saved.");
+            });
+        });
     }
 
     function initGestures() {
